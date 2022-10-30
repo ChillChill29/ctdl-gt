@@ -167,9 +167,185 @@ void insertionSort(int arr[], int n){
 ```
 ## giải thuật sắp xếp quicksort
 ####1. Lý thuyết
+> **Sắp xếp quickSort** được tiến hành dựa trên **chia đôi mảng** được sắp xếp **thành mảng chỉ nhỏ và chỉ lớn hơn hoặc bằng pivot**, và **chuyển phần tử pivot về giữa** hai mảng con, **lặp lại tới khi còn một phần tử**.
+
+> Có 4 cách chọn Pivot: **Đầu mảng, Cuối mảng, Trung vị**(Giữa mảng), và random(Tuy nhiên rất dễ rơi vào trường hợp đặc biệt: Luôn là số lớn nhất, Bé nhất,...).
+
+> **Nhanh** hơn bắt kì thuật toán sắp xếp nào, tuy nhiên **nhược điểm là vị trí các phần tử tương tự nhau có thể bị thay đổi**.
+
 ####2. Minh họa
+![Minh họa quickSort](./image/quickSortExample.gif)
+
 ####3. Độ phức tạp
-####4. Code
+> Độ phức tạp thời gian của trường hợp **tốt nhất, trung bình: O(nlog(n))**. Trường hợp này khó xác định, phụ thuộc hoàn toàn vào pivot
+
+> Độ phức tạp thời gian của trường hợp **xấu nhất: O(n^2)**. Trường hợp xảy ra khi **mảng chứa các phần tử giống nhau**, hoặc là **mảng ngược**.
+
+####4. Lựa chọn pivot: code và mã giả
+> Các mảng được **chia nhỏ và xếp lại dựa vào đệ quy**, việc **đánh True chỉ giúp dễ quan sát các vị trí đã được sắp xếp đúng**, và các **mảng con là các mảng được ngăn cách bởi True**.
+
+* Pivot là phần tử đầu: cần low
+```
+> Bước 1: Lấy phần tử đầu danh sách làm chốt.
+> Bước 2: Phần còn lại không bao gồm chốt là mảng cần chia.
+> Bước 3: Nếu có phần tử lớn hơn chốt đầu tiên từ trái đếm qua, thì đánh dấu đó là left và thoát
+> Bước 4: Nếu có phần tử nhỏ hơn chốt đầu tiên từ phải đếm qua, thì đánh dấu đó là right và thoát
+> Bước 5: Nếu left nhỏ hơn right thì đổi vị trí left và right, tiếp tục bước 3 bước 4 bỏ qua phần tử tại vị trí left và right
+> Bước 6: Nếu left lớn hơn right thì đổi vị trí của chốt và right
+```
+```
+arr[] = {10, 80, 30, 90, 40}
+Indexes:  0   1   2   3   4
+pivot = 10, left = 1, right = 4, low = 0 
+left = 1 <= right = 4 nhưng arr[left = 1] = 80 > pivot = 10 => ngắt
+right = 4 >= left = 1 và arr[right = 4] = 40 > pivot = 10
+...
+right = 1 >= left = 1 và arr[right = 1] = 40 >= pivot = 10 
+right = 0 < left = 1 => ngắt  
+vì left = 1 > right = 0: đổi vị trí arr[right]<=>arr[low = 0] và đánh True
+
+arr[] = {10, 80, 30, 90, 40}
+Indexes:  True   1   2   3   4
+pivot = 80, left = 2, right = 4, low = 1
+left = 2 <= right = 4 và arr[left = 2] = 30 < pivot = 80 
+left = 3 <= right = 4 nhưng arr[left = 3] = 90 > pivot = 80 => ngắt
+right = 4 >= left = 3 nhưng arr[right = 4] = 40 < pivot = 80 => ngắt
+Vì left = 3  < right = 4: đổi vị trí arr[right]<=>arr[left]
+=> arr[] = {10, 80, 30, 40, 90}
+left = 4 <= right = 4 nhưng arr[left = 4] = 90 == pivot = 90 => ngắt
+right = 4 >= left = 4 và arr[right = 4] = 90 >= pivot = 90
+right = 3 < left = 4 => ngắt
+vì left = 4 > right = 3: đổi vị trí arr[right = 3]<=>arr[low = 1] và đánh True
+
+arr[] = {10, 40, 30, 80, 90}
+Indexes:  True   1   2   True   4
+pivot = 40, left = 2, right = 2, low = 1
+left = 2 <= right = 2 và arr[left = 2] = 30 < pivot = 40
+left = 3 > right = 2 => ngắt
+right = 2 < left = 3 => ngắt
+Vì left = 3 > right = 2: đổi vị trí arr[right]<=>arr[low = 1] và đánh True
+=> arr[] = {10, 30, 40, 80, 90}
+pivot = 90, left = 5, right = 4, low = 4
+left = 5 > right = 4 => ngắt
+right = 4 < left = 5 => ngắt
+Vì left = 5 > right = 4: đổi vị trí arr[right]<=>arr[low] và đánh True
+
+arr[] = {10, 40, 30, 80, 90}
+Indexes:  True   True   2   True   True
+pivot = 30, left = 3, right = 2, low = 2
+left = 3 > right = 2 => ngắt
+right = 2 < left = 2 => ngắt
+Vì left = 3 > right = 2: đổi vị trí arr[right]<=>arr[low] và đánh True
+
+arr[] = {10, 40, 30, 80, 90}
+Indexes:  True   True   True   True   True
+```
+```
+int leftPartition (int arr[], int low, int high)
+{
+    int pivot = arr[low];    // pivot
+    int left = low + 1;
+    int right = high;
+    while(true){
+        while(left <= right && arr[left] < pivot) left++; // Tìm phần tử >= arr[pivot]
+        while(right >= left && arr[right] > pivot) right--; // Tìm phần tử <= arr[pivot]
+        if (left >= right) break; // Đã duyệt xong thì thoát vòng lặp
+        swap(&arr[left], &arr[right]); // Nếu chưa xong, đổi chỗ.
+        left++; // Vì left hiện tại đã xét, nên cần tăng
+        right--; // Vì right hiện tại đã xét, nên cần giảm
+    }
+    swap(&arr[right], &arr[low]);
+    return right; // Trả về chỉ số nằm giữa hai mảng con sẽ dùng để chia đổi mảng
+}
+```
+
+* Pivot là phần tử cuối: cần high
+```
+> Bước 1: Lấy phần tử cuối danh sách làm chốt.
+> Bước 2: Phần còn lại không bao gồm chốt là mảng cần chia.
+> Bước 3: Nếu có phần tử lớn hơn chốt đầu tiên từ trái đếm qua, thì đánh dấu đó là left và thoát.
+> Bước 4: Nếu có phần tử nhỏ hơn chốt đầu tiên từ phải đếm qua, thì đánh dấu đó là right và thoát.
+> Bước 5: Nếu left nhỏ hơn right thì đổi vị trí left và right, tiếp tục bước 3 bước 4 bỏ qua vị trí left và right.
+> Bước 6: Nếu left lớn hơn right thì đổi vị trí của chốt và left.
+```
+```
+arr[] = {10, 80, 30, 90, 40}
+Indexes:  0   1   2   3   4
+pivot = 40, left = 0, right = 3, high = 4
+left = 0 <= right = 4 và arr[left = 0] = 10 < pivot = 40 
+left = 1 <= right = 4 nhưng arr[left = 1] = 80 < pivot = 40 => ngắt
+right = 3 >= left = 1 và arr[right = 3] = 90 > pivot = 40
+right = 2 >= left = 1 và arr[right = 2] = 30 < pivot = 40 => ngắt
+Vì left = 1 > right = 2: đổi vị trí arr[right]<=>arr[left] 
+=> arr[] = {10, 30, 80, 90, 40} 
+left = 2 <= right = 2 và arr[left = 2] = 30 < pivot = 40
+left = 3 > right = 2 => ngắt
+right = 2 < left = 3 => ngắt  
+vì left = 3 > right = 2: đổi vị trí arr[left]<=>arr[high = 4] và đánh True
+
+arr[] = {10, 30, 40, 90, 80}
+Indexes:  0   1   True   3   4
+pivot = 30, left = 0, right = 0, high = 1
+left = 0 <= right = 0 và arr[left = 0] = 10 < pivot = 30
+left = 1 > right = 0 => ngắt
+right = 0 < left = 1 => ngắt
+Vì left = 1 > right = 0: đổi vị trí arr[left = 1]<=>arr[high = 1] và đánh True
+pivot = 80, left = 3, right = 3, high = 4
+left = 3 <= right = 3 nhưng arr[left = 3] = 90 > pivot = 80 => ngắt
+right = 3 >= left = 3 và arr[right = 3] = 90 > pivot = 80
+right = 2 < left = 3 => ngắt
+Vì left = 3 > right = 2: đổi vị trí arr[left = 3]<=>arr[high = 4] và đánh True
+
+arr[] = {10, 30, 40, 80, 90}
+Indexes:  0   True   True   True   4
+pivot = 10, left = 0, right = -1, high = 0
+left = 0 > right = -1 => ngắt
+right = -1 < left = 0 => ngắt
+Vì left = 0 > right = -1: đổi vị trí arr[left = 0]<=>arr[high = 0] và đánh True
+pivot = 90, left = 4, right = 3, high = 4
+left = 4 > right = 3 => ngắt
+right = 3 < left = 4 => ngắt
+Vì left = 4 > right = 3: đổi vị trí arr[left = 4]<=>arr[high = 4] và đánh True
+
+arr[] = {10, 30, 40, 80, 90}
+Indexes:  True   True   True   True   True
+```
+```
+int rightPartition (int arr[], int low, int high)
+{
+    int pivot = arr[high];    // pivot
+    int left = low;
+    int right = high - 1;
+    while(true){
+        while(left <= right && arr[left] < pivot) left++; // Tìm phần tử >= arr[pivot]
+        while(right >= left && arr[right] > pivot) right--; // Tìm phần tử <= arr[pivot]
+        if (left >= right) break; // Đã duyệt xong thì thoát vòng lặp
+        swap(&arr[left], &arr[right]); // Nếu chưa xong, đổi chỗ.
+        left++; // Vì left hiện tại đã xét, nên cần tăng
+        right--; // Vì right hiện tại đã xét, nên cần giảm
+    }
+    swap(&arr[left], &arr[high]);
+    return left; // Trả về chỉ số nằm giữa hai mảng con sẽ dùng để chia đổi mảng
+}
+```
+
+* Pivot là phần tử trung vị: cần left + (left + high)/2
+####5. Code
+```
+int rightPartition (int arr[], int low, int high){}
+int leftPartition (int arr[], int low, int high){}
+void quickSort(int arr[], int low, int high)
+{
+    if (low < high)
+    {
+        int pi = leftPartition(arr, low, high);
+        // int pi = rightPartition(arr, low, high);
+        // Gọi đệ quy sắp xếp 2 mảng con trái và phải
+        quickSort(arr, low, pi - 1);
+        quickSort(arr, pi + 1, high);
+    }
+}
+```
 ## giải thuật sắp xếp heapsort 
 ####1. Lý thuyết
 ####2. Minh họa
@@ -177,6 +353,7 @@ void insertionSort(int arr[], int n){
 ####4. Code
 ## giải thuật sắp xếp trộn merge sort
 ####1. Lý thuyết
+
 > **Sắp xếp trộn** được tiến hành dựa trên **chia nhỏ danh sách** cần sắp xếp **thành từng phần tử theo nguyên tắc** rồi sau đó **hòa nhập theo phương pháp trộn** tự nhiên thành dãy có thứ tự.
 
 > Phù hợp với các bài toán có **dữ liệu lớn và phức tạp**. 
@@ -184,9 +361,13 @@ void insertionSort(int arr[], int n){
 > **Phương pháp trộn phần tử** luôn **đảm bảo chuỗi con là một dãy tăng(giảm)**, sau đó **so sánh các phần tử đầu** để ghép vào chuỗi lớn hơn. Nếu chuỗi con này **rỗng thì lấy toàn bộ chuỗi kia**.
 
 ####2. Minh họa
+
 ![Minh họa mergeSort](./image/mergeSortExample.gif)
+
 ####3. Độ phức tạp
+
 > Độ phức tạp thời gian của trường hợp xấu nhất, trung bình, tốt nhất: O(nlog(n)). 
+
 > Các phần tử luôn trải qua quá trình tách và ghép phần tử, tuy nhanh nhưng nhược điểm là thuật toán khó cài đặt
 
 ####4. Minh họa thuật toán trộn và code
