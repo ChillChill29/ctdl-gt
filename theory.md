@@ -348,9 +348,111 @@ void quickSort(int arr[], int low, int high)
 ```
 ## giải thuật sắp xếp heapsort 
 ####1. Lý thuyết
+
+> **Thuật toán heapSort** được tiến hành dựa trên **xây dựng một cây nhị phân ảo**, nơi mà các **phần tử phía trên luôn lớn hơn các phần tử phía dưới**. Phần tử **trên cùng là lớn nhất**. Sau đó, **đảo với phần tử cuối cùng và loại bỏ nó** ra khỏi cây, lặp lại cho đến khi cây kết thúc.
+
+> Đó là **max heap**. Ngoài ra còn có **min heap**, nơi mà **các phần tử nhỏ hơn được xếp trên**.
+
+![lý thuyết minHeap và maxHeap](./image/theoryHeapSort.png)
+
 ####2. Minh họa
+![Minh họa heapSort](./image/heapSortExample.gif)
 ####3. Độ phức tạp
-####4. Code
+
+> Độ phức tạp thời gian của trường hợp **tốt nhất, trung bình, xấu nhất**: **O(Log(n))**. 
+
+> Độ phức tạp thời gian của **tạo cây nhị phân ảo** là **O(n)**
+
+> Độ phức tạp thời gian **tổng thể của Heap Sort**: **O(nlog(n))**.
+
+####4. Tạo cây
+
+* Vị trí phần tử trong cây
+
+> Giả định phần tử **i là cha**, thì phần tử **con bên trái là (i*2 + 1)** và **(i*2 + 2) là phần tử bên phải**.
+
+![Ví dụ cây](./image/binaryHeap.png)
+
+* Sắp xếp vị trí cây
+```
+> Xác định các vị trí cây.
+> Mặc định phần tử cha là phần tử lớn nhất.
+> Nếu có phần tử con lớn hơn phần tử cha, thì đảo vị trí với cha và đi sâu vào nhánh con của cây đã thay đổi.
+> Lặp lại quá trình đi sâu cho đến khi cây được sắp xếp.
+```
+> **Đây là maxHeap**, đối với **minHeap thì phần tử cha là phần tử nhỏ nhất**.
+
+> Vì là **nhị phân nên chỉ cần đi sau vào phần tử bị thay đổi**.
+
+```
+void maxHeapify(int arr[], int n, int i) 
+{ 
+    int largest = i; // Xác định vị trí cha 
+    int l = 2*i + 1; // Xác định vị trí con trái
+    int r = 2*i + 2; // Xác định vị trí con phải
+    // Kiểm tra vị trí cây hiện tại 
+    if (l < n && arr[l] > arr[largest]) 
+        largest = l;   
+    if (r < n && arr[r] > arr[largest]) 
+        largest = r;   
+    // Nếu có sự thay đổi thì:
+    if (largest != i) 
+    {
+    	// Đảo vị trí phần tử lớn nhất lên đầu
+        swap(arr[i], arr[largest]);
+        // Đi sâu vào cây con    
+        maxHeapify(arr, n, largest); 
+    } 
+} 
+```
+```
+void minHeapify(int arr[], int n, int i) 
+{ 
+    int smallest = i; // Xác định vị trí cha 
+    int l = 2*i + 1; // Xác định vị trí con trái
+    int r = 2*i + 2; // Xác định vị trí con phải
+    // Kiểm tra vị trí cây hiện tại 
+    if (l < n && arr[l] < arr[smallest]) 
+        smallest = l;   
+    if (r < n && arr[r] < arr[smallest]) 
+        smallest = r;   
+    // Nếu có sự thay đổi thì:
+    if (smallest != i) 
+    {
+    	// Đảo vị trí phần tử lớn nhất lên đầu
+        swap(arr[i], arr[smallest]);
+        // Đi sâu vào cây con    
+        minHeapify(arr, n, smallest); 
+    } 
+}
+```
+
+####5. Code
+
+```
+> Bước 1: Tạo cây
+> Bước 2: Đảo vị trí phần tử lớn nhất(nhỏ nhất) về cuối
+> Bước 3: Loại bỏ phần tử cuối và lặp lại quá trình
+```
+```
+void maxHeapify(int arr[], int n, int i){}
+void minHeapify(int arr[], int n, int i){}
+void heapSort(int arr[], int n) 
+{ 
+    // Xây dựng cây ban đầu
+    for (int i = n / 2 - 1; i >= 0; i--) 
+        maxHeapify(arr, n, i);   
+    // Bắt đầu quá trình sắp xếp 
+    for (int i=n-1; i>0; i--) 
+    { 
+        Loại bỏ phần tử cuối 
+        swap(arr[0], arr[i]);  
+        // Lặp lại quá trình 
+        maxHeapify(arr, i, 0); 
+    } 
+}
+```
+
 ## giải thuật sắp xếp trộn merge sort
 ####1. Lý thuyết
 
@@ -446,7 +548,7 @@ void mergeSort(int arr[], int l, int r){
     }
 }
 ```
-## bài toán sắp xếp và tìm kiếm tuần tự, tìm kiếm nhị phân
+## Tìm kiếm tuần tự, tìm kiếm nhị phân
 ####1. Lý thuyết
 ####2. Minh họa
 ####3. Độ phức tạp
